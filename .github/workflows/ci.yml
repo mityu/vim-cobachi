@@ -1,0 +1,29 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-on-vim:
+    name: Vim ${{ matrix.vim_version }} on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          # Do not run tests on Ubuntu because not enough vim runtime is prepared.
+          - macos-latest
+          - windows-latest
+
+        vim_version:
+          - v9.1.0000
+          - head
+
+        download:
+          - available
+
+    uses: mityu/workflow-run-vim-themis/.github/workflows/run-themis.yml@v20240324
+    with:
+      vim_type: vim
+      vim_version: ${{ matrix.vim_version }}
+      os: ${{ matrix.os }}
+      download: ${{ matrix.download }}
