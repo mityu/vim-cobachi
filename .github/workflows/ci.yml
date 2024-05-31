@@ -15,7 +15,7 @@ jobs:
           - windows-latest
 
         vim_version:
-          - v9.1.0000
+          - v9.1.0027
           - head
 
         download:
