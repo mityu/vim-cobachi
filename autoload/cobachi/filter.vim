@@ -41,3 +41,38 @@ export def Substring(text: string, items: list<string>): Cobachi.FilterResult
   })
   return [filtered, matchposlist]
 enddef
+
+export def Regex(text: string, items: list<string>): Cobachi.FilterResult
+  const matchers = text
+    ->split('\v%(^|[^\\])%(\\\\)*\zs\s+')
+    ->filter((_: number, v: string): bool => v !=# '')
+    ->map((_: number, v: string): string =>
+      substitute(v, '\v%(^|[^\\])%(\\\\)*\zs\\\ze\s', '', 'g'))
+
+  if empty(matchers)
+    return [items, []]
+  endif
+
+  var filtered = []
+  var matchposlist = []
+  foreach(items, (idx: number, v: string) => {
+    var matchpos = []
+    for matcher in matchers
+      var m = matchstrpos(v, matcher)
+      if m == ['', -1, -1]
+        return
+      endif
+      matchpos->add([m[1] + 1, m[2] - m[1]])
+      while true
+        m = matchstrpos(v, matcher, m[2])
+        if m == ['', -1, -1]
+          break
+        endif
+        matchpos->add([m[1] + 1, m[2] - m[1]])
+      endwhile
+    endfor
+    matchposlist->add(matchpos)
+    filtered->add(v)
+  })
+  return [filtered, matchposlist]
+enddef
